@@ -4,4 +4,12 @@ metadata:
   name: hello-sample
 spec:
   # Add fields here
-  foo: bar
+  markdown: |
+    # My First Presentation
+    ---
+    ## Hello World
+
+    * Test
+    ---
+    # Finish
+    - ltmleo  

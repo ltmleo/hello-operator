@@ -18,7 +18,7 @@ package controllers
 
 import (
 	"context"
-	"fmt"
+	"time"
 
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -26,11 +26,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	configv1alpha1 "github.com/ltmleo/hello-operator/api/v1alpha1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	corev1 "k8s.io/api/core/v1"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
 // HelloReconciler reconciles a Hello object
@@ -71,7 +71,6 @@ func (r *HelloReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	}
 	return ctrl.Result{}, nil
 }
-
 
 func (r *HelloReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
@@ -138,6 +137,7 @@ func (r *HelloReconciler) ensureLatestPod(instance *configv1alpha1.Hello, config
 	err := r.Client.Get(context.TODO(), types.NamespacedName{Name: pod.Name, Namespace: pod.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
 		err = r.Client.Create(context.TODO(), pod)
+		time.Sleep(10 * time.Second)
 		if err != nil {
 			return err
 		}
@@ -145,7 +145,6 @@ func (r *HelloReconciler) ensureLatestPod(instance *configv1alpha1.Hello, config
 		// Pod created successfully - don't requeue
 		return nil
 	} else if err != nil {
-
 		return err
 	}
 
@@ -154,10 +153,12 @@ func (r *HelloReconciler) ensureLatestPod(instance *configv1alpha1.Hello, config
 		if err != nil {
 			return err
 		}
+		time.Sleep(10 * time.Second)
 		err = r.Client.Create(context.TODO(), pod)
 		if err != nil {
 			return err
 		}
+		time.Sleep(10 * time.Second)
 	}
 	return nil
 }
@@ -202,4 +203,3 @@ func newPodForCR(cr *configv1alpha1.Hello) *corev1.Pod {
 		},
 	}
 }
-
